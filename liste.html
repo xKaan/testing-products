@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ma liste de course</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, sans-serif; background: #f9fafb; color: #111827; }
+
+    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; background: #fff; border-bottom: 1px solid #e5e7eb; }
+    .navbar-brand { font-weight: 800; font-size: 1.25rem; letter-spacing: 0.05em; }
+    .navbar a { color: #374151; text-decoration: none; font-weight: 500; padding: 0.5rem 0.75rem; border-radius: 0.375rem; }
+    .navbar a:hover { background: #f3f4f6; }
+
+    main { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+    h2 { margin: 0 0 1rem; font-size: 1.5rem; }
+
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 0.5rem; overflow: hidden; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); }
+    th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #e5e7eb; }
+    th { background: #f3f4f6; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; color: #6b7280; }
+    tbody tr:last-child td { border-bottom: none; }
+
+    input[type="number"] { width: 4.5rem; padding: 0.35rem 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem; font-size: 0.95rem; }
+
+    .btn-supprimer { background: #ef4444; color: #fff; border: none; border-radius: 0.375rem; padding: 0.4rem 0.9rem; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; cursor: pointer; }
+    .btn-supprimer:hover { background: #dc2626; }
+
+    .total-row { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; font-size: 1.1rem; }
+
+    #vider-liste { background: #fff; color: #ef4444; border: 1px solid #ef4444; border-radius: 0.375rem; padding: 0.5rem 1rem; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; cursor: pointer; }
+    #vider-liste:hover { background: #fef2f2; }
+
+    .empty-cart td { text-align: center; color: #9ca3af; padding: 2rem 0; }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <span class="navbar-brand">🛒 CoursesApp</span>
+    <nav>
+      <a href="/index.html">Produits disponibles</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Ma liste de course</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Produit</th>
+          <th>PU (€)</th>
+          <th>Quantité</th>
+          <th>Sous-total</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="liste-course-body"></tbody>
+    </table>
+    <div class="total-row">
+      <span>Total général : <strong id="total-general">0.00 €</strong></span>
+      <button id="vider-liste" type="button">Vider la liste</button>
+    </div>
+  </main>
+
+  <script type="module" src="/src/liste.ts"></script>
+</body>
+</html>
