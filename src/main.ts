@@ -12,7 +12,7 @@ interface CartItem {
 
 type Critere = 'nom' | 'prix';
 
-export function getCart(): CartItem[] {
+export function obtenirPanier(): CartItem[] {
   try {
     return JSON.parse(localStorage.getItem('listeCourses') ?? '[]');
   } catch {
@@ -20,11 +20,11 @@ export function getCart(): CartItem[] {
   }
 }
 
-export function saveCart(cart: CartItem[]): void {
+export function sauvegarderPanier(cart: CartItem[]): void {
   localStorage.setItem('listeCourses', JSON.stringify(cart));
 }
 
-export function addToCart(cart: CartItem[], product: { nom: string; prix_unitaire: number }): CartItem[] {
+export function ajouterProduit(cart: CartItem[], product: { nom: string; prix_unitaire: number }): CartItem[] {
   const existing = cart.find(item => item.nom === product.nom);
   if (existing) {
     return cart.map(item =>
@@ -36,13 +36,13 @@ export function addToCart(cart: CartItem[], product: { nom: string; prix_unitair
   return [...cart, { nom: product.nom, quantite: 1, prix_unitaire: product.prix_unitaire }];
 }
 
-export function filterProducts(products: Product[], query: string): Product[] {
+export function recherche(products: Product[], query: string): Product[] {
   const q = query.trim().toLowerCase();
   if (!q) return products;
   return products.filter(p => p.nom.toLowerCase().includes(q));
 }
 
-export function sortProducts(products: Product[], critere: Critere): Product[] {
+export function tri(products: Product[], critere: Critere): Product[] {
   const sorted = [...products];
   if (critere === 'prix') {
     sorted.sort((a, b) => a.prix_unitaire - b.prix_unitaire);
@@ -52,7 +52,7 @@ export function sortProducts(products: Product[], critere: Critere): Product[] {
   return sorted;
 }
 
-export function renderProductCard(product: Product): string {
+function renderProductCard(product: Product): string {
   return `
     <li class="card">
       <h2 class="card-title">${product.nom}</h2>
@@ -63,34 +63,36 @@ export function renderProductCard(product: Product): string {
   `;
 }
 
-export function renderProducts(products: Product[]): string {
+function renderProductsHTML(products: Product[]): string {
   if (products.length === 0) {
     return '<li class="empty">Aucun produit trouvé.</li>';
   }
   return products.map(renderProductCard).join('');
 }
 
-async function init(): Promise<void> {
-  const response = await fetch('/liste_produits_quotidien.json');
-  const products: Product[] = await response.json();
-
-  const recherche = document.getElementById('recherche') as HTMLInputElement;
-  const tri = document.getElementById('tri') as HTMLSelectElement;
-  const resetBtn = document.getElementById('reset-filtres') as HTMLButtonElement;
+export function afficherProduits(products: Product[]): void {
   const liste = document.getElementById('liste-produits') as HTMLUListElement;
   const compteur = document.getElementById('compteur-produits') as HTMLElement;
+  liste.innerHTML = renderProductsHTML(products);
+  compteur.textContent = `${products.length} produits`;
+}
+
+export function ajouterEcouteurs(products: Product[]): void {
+  const rechercheInput = document.getElementById('recherche') as HTMLInputElement;
+  const triSelect = document.getElementById('tri') as HTMLSelectElement;
+  const resetBtn = document.getElementById('reset-filtres') as HTMLButtonElement;
+  const liste = document.getElementById('liste-produits') as HTMLUListElement;
 
   function update(): void {
-    const resultats = sortProducts(filterProducts(products, recherche.value), tri.value as Critere);
-    liste.innerHTML = renderProducts(resultats);
-    compteur.textContent = `${resultats.length} produits`;
+    const resultats = tri(recherche(products, rechercheInput.value), triSelect.value as Critere);
+    afficherProduits(resultats);
   }
 
-  recherche.addEventListener('input', update);
-  tri.addEventListener('change', update);
+  rechercheInput.addEventListener('input', update);
+  triSelect.addEventListener('change', update);
   resetBtn.addEventListener('click', () => {
-    recherche.value = '';
-    tri.value = 'nom';
+    rechercheInput.value = '';
+    triSelect.value = 'nom';
     update();
   });
 
@@ -100,12 +102,18 @@ async function init(): Promise<void> {
     const btn = target as HTMLButtonElement;
     const nom = btn.dataset.nom!;
     const prix = parseFloat(btn.dataset.prix!);
-    saveCart(addToCart(getCart(), { nom, prix_unitaire: prix }));
+    sauvegarderPanier(ajouterProduit(obtenirPanier(), { nom, prix_unitaire: prix }));
     btn.textContent = 'Ajouté ✓';
     setTimeout(() => { btn.textContent = 'Ajouter à la liste'; }, 1000);
   });
 
   update();
+}
+
+async function init(): Promise<void> {
+  const response = await fetch('/liste_produits_quotidien.json');
+  const products: Product[] = await response.json();
+  ajouterEcouteurs(products);
 }
 
 init();
